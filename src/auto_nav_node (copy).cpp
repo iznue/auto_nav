@@ -33,7 +33,7 @@ void move_goal(int floor, double x, double y, double o_z, double o_w, double z =
     MoveBaseClient ac("move_base", true);
     ROS_INFO("nav_mode : %d", nav_mode);
     //while(!ac.waitForServer(ros::Duration(5.0))){
-    //	ROS_INFO("Waiting for cthe move_base action server to come up");
+    //	ROS_INFO("Waiting for the move_base action server to come up");
     //}
     
     move_base_msgs::MoveBaseGoal goal;
@@ -206,17 +206,9 @@ void floorCallback(const std_msgs::Int32::ConstPtr& msg)
     
     //////// /move_base/goal로 이동할 위치 지정하기
     if (floor == 1){ 
-    	std::string one_rviz = "gnome-terminal -- roslaunch omo_r1mini_navigation omo_r1mini_navigation_rviz.launch";
-    	const char *one_command = one_rviz.c_str();
-    	system(one_command);
-    	
     	initial_pose(44.19002151489258, 19.193927764892578, -0.07071067966408575, 0.7071067657322372);
     	move_goal(floor, 0.1711464524269104, -0.14070641994476318, 0.9999847388240346, 0.005524682708284404);
     } else if (floor == 5){
-    	std::string five_rviz = "gnome-terminal -- roslaunch omo_r1mini_navigation omo_r1mini_navigation_rviz_1.launch";
-    	const char *five_command = five_rviz.c_str();
-    	system(five_command);
-    	    	
     	initial_pose(-0.4041336476802826, 0.10317420959472656, -0.01094703955525251, 0.9999400793672467);
     	move_goal(floor, 4.172542095184326, -27.017969131469727, 0.998694503924573, 0.051081188620184625);
     } else{
@@ -235,14 +227,11 @@ void elevatorCallback(const std_msgs::String::ConstPtr& msg)
         nav_mode = false;
         if (nav_running) {
         	//ros::shutdown();
-        	system("rosnode kill robot_state_cpublisher");
+        	system("rosnode kill robot_state_publisher");
         	system("rosnode kill map_server");
         	system("rosnode kill amcl");
         	system("rosnode kill joint_state_publisher");
         	system("rosnode kill move_base");
-        	
-        	system("rosnode kill rviz");
-        	system("rosnode kill rviz_5f");
         	nav_running = false;
         }
     }
@@ -255,9 +244,9 @@ int main(int argc, char **argv)
     nh_ptr = &nh;
     
     reach_goal_pub = nh.advertise<std_msgs::String>("/reach_goal", 10);
-    
-    ros::Subscriber elevator_sub = nh.subscribe("/Control_mode", 3, elevatorCallback);
-    ros::Subscriber floor_sub = nh.subscribe("/elevator_floor", 3, floorCallback);
+
+    ros::Subscriber floor_sub = nh.subscribe("/elevator_floor", 1, floorCallback);
+    ros::Subscriber elevator_sub = nh.subscribe("/Control_mode", 1, elevatorCallback);
 
     ros::spin();
 
